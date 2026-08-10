@@ -27,6 +27,9 @@ one's code — they connect only through a shared MongoDB Atlas database.
 
 **`/`** — dashboard: study countdown, chapter-review progress, tracked counts, top skill mentions
 
+**`/today`** — mirrors the Telegram digest on the web: new jobs, newly-scored companies, chapters that got new
+Q&A, postings closed today, and the current skill-frequency leaderboard
+
 ## Setup
 
 ```bash

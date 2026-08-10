@@ -59,6 +59,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <header className="border-b border-neutral-200 dark:border-neutral-800">
           <nav className="max-w-5xl mx-auto flex items-center gap-x-6 gap-y-2 px-4 py-3 text-sm flex-wrap">
             <Link href="/" className="font-semibold">MuleSoft Job Prep</Link>
+            <Link href="/today" className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
+              Today
+            </Link>
             <NavGroup links={STUDY_LINKS} />
             <span className="text-neutral-300 dark:text-neutral-700 hidden sm:inline">|</span>
             <NavGroup links={JOB_LINKS} />

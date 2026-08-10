@@ -12,6 +12,7 @@ export interface LectureQA {
   questions_markdown: string;
   questions?: Question[];
   cheat_sheet_markdown?: string;
+  generated_date?: string;
 }
 
 export interface Job {
@@ -25,6 +26,7 @@ export interface Job {
   posted_date: string;
   first_seen_date: string;
   closed?: boolean;
+  closed_date?: string;
   salary_min?: number;
   salary_max?: number;
   salary_currency?: string;
