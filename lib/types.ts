@@ -14,6 +14,10 @@ export interface Job {
   description: string;
   posted_date: string;
   first_seen_date: string;
+  salary_min?: number;
+  salary_max?: number;
+  salary_currency?: string;
+  salary_text?: string;
 }
 
 export interface JobWithCompany extends Job {
