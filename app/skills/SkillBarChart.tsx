@@ -5,9 +5,10 @@ import { useState } from "react";
 interface Props {
   data: [string, number][]; // [skill, count], already sorted descending
   jobCount: number;
+  coveredSkills: Set<string>;
 }
 
-export default function SkillBarChart({ data, jobCount }: Props) {
+export default function SkillBarChart({ data, jobCount, coveredSkills }: Props) {
   const [hovered, setHovered] = useState<string | null>(null);
   const max = data.length ? data[0][1] : 1;
 
@@ -18,13 +19,14 @@ export default function SkillBarChart({ data, jobCount }: Props) {
           const pct = Math.round((count / jobCount) * 100);
           const widthPct = Math.max((count / max) * 100, 4);
           const isHovered = hovered === skill;
+          const covered = coveredSkills.has(skill);
           return (
             <div
               key={skill}
               className="flex items-center gap-3 text-sm"
               onMouseEnter={() => setHovered(skill)}
               onMouseLeave={() => setHovered(null)}
-              title={`${skill}: ${count} mention${count === 1 ? "" : "s"} across ${jobCount} job description${jobCount === 1 ? "" : "s"} (${pct}%)`}
+              title={`${skill}: ${count} mention${count === 1 ? "" : "s"} across ${jobCount} job description${jobCount === 1 ? "" : "s"} (${pct}%) - ${covered ? "chapter studied" : "not yet covered"}`}
             >
               <div
                 className="w-40 shrink-0 truncate text-right"
@@ -48,6 +50,15 @@ export default function SkillBarChart({ data, jobCount }: Props) {
                   {count} ({pct}%)
                 </span>
               </div>
+              <span
+                className="shrink-0 text-xs font-medium px-1.5 py-0.5 rounded"
+                style={{
+                  color: covered ? "var(--viz-good)" : "var(--viz-warn)",
+                  backgroundColor: "transparent",
+                }}
+              >
+                {covered ? "✓ studied" : "gap"}
+              </span>
             </div>
           );
         })}

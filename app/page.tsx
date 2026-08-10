@@ -1,17 +1,20 @@
 import Link from "next/link";
 import { getDb } from "@/lib/mongodb";
-import type { Application, JdReport } from "@/lib/types";
+import type { Application, ChapterProgress, JdReport } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+const STUDY_DEADLINE = process.env.STUDY_DEADLINE || "2026-09-08";
+
 async function getSummary() {
   const db = await getDb();
-  const [chapterCount, jobCount, companyCount, latestReport, applications] = await Promise.all([
+  const [chapterCount, jobCount, companyCount, latestReport, applications, reviewedChapters] = await Promise.all([
     db.collection("lecture_qna").countDocuments({}),
-    db.collection("jobs").countDocuments({}),
+    db.collection("jobs").countDocuments({ closed: { $ne: true } }),
     db.collection("companies").countDocuments({}),
     db.collection<JdReport>("jd_reports").find({}).sort({ _id: -1 }).limit(1).toArray(),
     db.collection<Application>("applications").find({}).toArray(),
+    db.collection<ChapterProgress>("chapter_progress").countDocuments({ reviewed: true }),
   ]);
 
   const topSkills = latestReport[0]
@@ -22,7 +25,11 @@ async function getSummary() {
 
   const applied = applications.filter((a) => a.status !== "not_applied").length;
 
-  return { chapterCount, jobCount, companyCount, topSkills, applied };
+  const daysLeft = Math.ceil(
+    (new Date(STUDY_DEADLINE + "T00:00:00").getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+  );
+
+  return { chapterCount, jobCount, companyCount, topSkills, applied, reviewedChapters, daysLeft };
 }
 
 function StatCard({ label, value, href }: { label: string; value: string | number; href: string }) {
@@ -38,7 +45,8 @@ function StatCard({ label, value, href }: { label: string; value: string | numbe
 }
 
 export default async function DashboardPage() {
-  const { chapterCount, jobCount, companyCount, topSkills, applied } = await getSummary();
+  const { chapterCount, jobCount, companyCount, topSkills, applied, reviewedChapters, daysLeft } = await getSummary();
+  const progressPct = chapterCount ? Math.round((reviewedChapters / chapterCount) * 100) : 0;
 
   return (
     <div className="space-y-8">
@@ -49,10 +57,28 @@ export default async function DashboardPage() {
         </p>
       </div>
 
+      <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 p-4 flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <div className="text-2xl font-semibold">
+            {daysLeft >= 0 ? `${daysLeft} day${daysLeft === 1 ? "" : "s"} left` : "Deadline passed"}
+          </div>
+          <div className="text-sm text-neutral-500">until your target study date ({STUDY_DEADLINE})</div>
+        </div>
+        <div className="text-right">
+          <div className="text-2xl font-semibold">
+            {reviewedChapters}/{chapterCount}
+            <span className="text-sm font-normal text-neutral-500 ml-1">chapters reviewed ({progressPct}%)</span>
+          </div>
+          <Link href="/lectures" className="text-sm text-blue-600 dark:text-blue-400">
+            Mark chapters reviewed →
+          </Link>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard label="Chapters with Q&A" value={chapterCount} href="/lectures" />
         <StatCard label="Jobs tracked" value={jobCount} href="/jobs" />
-        <StatCard label="Companies scored" value={companyCount} href="/jobs" />
+        <StatCard label="Companies scored" value={companyCount} href="/companies" />
         <StatCard label="Applications in progress" value={applied} href="/tracker" />
       </div>
 

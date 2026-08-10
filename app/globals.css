@@ -22,6 +22,8 @@
   --viz-muted: #898781;
   --viz-gridline: #e1e0d9;
   --viz-series-1: #2a78d6;
+  --viz-good: #0ca30c;
+  --viz-warn: #a5680f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +40,8 @@
     --viz-muted: #898781;
     --viz-gridline: #2c2c2a;
     --viz-series-1: #3987e5;
+    --viz-good: #5cbf98;
+    --viz-warn: #d9a24e;
   }
 }
 

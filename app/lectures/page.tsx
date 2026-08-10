@@ -1,16 +1,21 @@
 import { getDb } from "@/lib/mongodb";
-import type { LectureQA } from "@/lib/types";
+import type { ChapterProgress, LectureQA } from "@/lib/types";
 import LectureAccordion from "./LectureAccordion";
 
 export const dynamic = "force-dynamic";
 
-async function getChapters(): Promise<LectureQA[]> {
+async function getData() {
   const db = await getDb();
-  return db.collection<LectureQA>("lecture_qna").find({}).sort({ _id: 1 }).toArray();
+  const [chapters, progressDocs] = await Promise.all([
+    db.collection<LectureQA>("lecture_qna").find({}).sort({ _id: 1 }).toArray(),
+    db.collection<ChapterProgress>("chapter_progress").find({}).toArray(),
+  ]);
+  const progress = Object.fromEntries(progressDocs.map((p) => [p._id, p]));
+  return { chapters, progress };
 }
 
 export default async function LecturesPage() {
-  const chapters = await getChapters();
+  const { chapters, progress } = await getData();
 
   return (
     <div className="space-y-4">
@@ -34,7 +39,7 @@ export default async function LecturesPage() {
           No Q&A generated yet — run the pipeline repo&apos;s daily job at least once.
         </p>
       ) : (
-        <LectureAccordion chapters={chapters} />
+        <LectureAccordion chapters={chapters} progress={progress} />
       )}
     </div>
   );

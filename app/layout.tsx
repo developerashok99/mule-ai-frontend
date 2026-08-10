@@ -18,13 +18,36 @@ export const metadata: Metadata = {
   description: "Interview prep, job tracking, and skill-gap analysis for the MuleSoft job hunt",
 };
 
-const NAV_LINKS = [
-  { href: "/", label: "Dashboard" },
+const STUDY_LINKS = [
   { href: "/lectures", label: "Interview Q&A" },
-  { href: "/jobs", label: "Jobs" },
+  { href: "/review", label: "Review" },
+  { href: "/mock-interview", label: "Mock Interview" },
+  { href: "/dataweave-practice", label: "DataWeave" },
   { href: "/skills", label: "Skill Gaps" },
+];
+
+const JOB_LINKS = [
+  { href: "/jobs", label: "Jobs" },
+  { href: "/companies", label: "Companies" },
+  { href: "/resume-match", label: "Resume Match" },
   { href: "/tracker", label: "Tracker" },
 ];
+
+function NavGroup({ links }: { links: { href: string; label: string }[] }) {
+  return (
+    <div className="flex gap-4 flex-wrap">
+      {links.map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+        >
+          {link.label}
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -34,19 +57,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <header className="border-b border-neutral-200 dark:border-neutral-800">
-          <nav className="max-w-5xl mx-auto flex items-center gap-6 px-4 py-3 text-sm">
-            <span className="font-semibold">MuleSoft Job Prep</span>
-            <div className="flex gap-4">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+          <nav className="max-w-5xl mx-auto flex items-center gap-x-6 gap-y-2 px-4 py-3 text-sm flex-wrap">
+            <Link href="/" className="font-semibold">MuleSoft Job Prep</Link>
+            <NavGroup links={STUDY_LINKS} />
+            <span className="text-neutral-300 dark:text-neutral-700 hidden sm:inline">|</span>
+            <NavGroup links={JOB_LINKS} />
           </nav>
         </header>
         <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">{children}</main>

@@ -28,22 +28,40 @@ function scoreColor(score?: number) {
   return "text-red-600 dark:text-red-400";
 }
 
+const LOCATION_FILTERS = ["All", "Remote", "India", "US", "Other"] as const;
+type LocationFilter = (typeof LOCATION_FILTERS)[number];
+
+const INDIA_HINTS = ["india", "bengaluru", "bangalore", "hyderabad", "pune", "chennai", "mumbai", "delhi", "gurugram", "gurgaon", "noida"];
+const US_HINTS = ["united states", "usa", " us", "us-", "remote - us", ", ca", ", tx", ", ny", ", wa", ", fl", ", il", ", ma", ", nj", ", va", ", pa", ", oh", ", ga", ", co"];
+
+function classifyLocation(location: string): LocationFilter {
+  const l = ` ${location.toLowerCase()} `;
+  if (INDIA_HINTS.some((h) => l.includes(h))) return "India";
+  if (US_HINTS.some((h) => l.includes(h))) return "US";
+  if (l.includes("remote")) return "Remote";
+  return "Other";
+}
+
 type SortMode = "date" | "salary";
 
 export default function JobsList({ jobs }: { jobs: JobWithCompany[] }) {
   const [onlyWithSalary, setOnlyWithSalary] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>("date");
+  const [locationFilter, setLocationFilter] = useState<LocationFilter>("All");
 
   const visible = useMemo(() => {
     let list = jobs;
     if (onlyWithSalary) {
       list = list.filter((j) => j.salary_min && j.salary_max);
     }
+    if (locationFilter !== "All") {
+      list = list.filter((j) => classifyLocation(j.location) === locationFilter);
+    }
     if (sortMode === "salary") {
       list = [...list].sort((a, b) => (b.salary_max ?? 0) - (a.salary_max ?? 0));
     }
     return list;
-  }, [jobs, onlyWithSalary, sortMode]);
+  }, [jobs, onlyWithSalary, sortMode, locationFilter]);
 
   const salaryCount = jobs.filter((j) => j.salary_min && j.salary_max).length;
 
@@ -58,6 +76,18 @@ export default function JobsList({ jobs }: { jobs: JobWithCompany[] }) {
           />
           Only show jobs with salary listed ({salaryCount})
         </label>
+
+        <div className="flex items-center gap-1.5">
+          {LOCATION_FILTERS.map((f) => (
+            <button
+              key={f}
+              onClick={() => setLocationFilter(f)}
+              className={`px-2 py-1 rounded-full border ${locationFilter === f ? "border-neutral-900 dark:border-neutral-100" : "border-neutral-300 dark:border-neutral-700 text-neutral-500"}`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
 
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-neutral-500">Sort:</span>
