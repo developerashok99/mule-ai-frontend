@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MuleSoft Job Prep — Frontend
 
-## Getting Started
+A dashboard for the data collected by [AI-mule-jobs-analyzer](https://github.com/developerashok99/AI-mule-jobs-analyzer)
+(the daily scrape → analyze → Telegram pipeline). This repo has no dependency on that
+one's code — they connect only through a shared MongoDB Atlas database. This app reads
+from it (lecture Q&A, jobs, company scores, JD skill-frequency reports) and writes to one
+new collection, `applications`, for the tracker page.
 
-First, run the development server:
+## Pages
+
+- **`/`** — dashboard: counts + top skill mentions at a glance
+- **`/lectures`** — every generated interview Q&A set, searchable, one chapter expanded at a time
+- **`/jobs`** — tracked postings with each company's score/verdict
+- **`/skills`** — bar chart of skill/topic mentions across all collected job descriptions
+- **`/tracker`** — mark jobs not applied / applied / interviewing / offer / rejected, with notes; saves on change
+
+## Setup
 
 ```bash
+npm install
+cp .env.local.example .env.local   # same MONGODB_URI as the pipeline repo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Needs a **write-capable** `MONGODB_URI` (same one the pipeline repo uses is fine) since
+the tracker page writes to the `applications` collection.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy (Vercel, free tier)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Push this repo to GitHub.
+2. https://vercel.com → New Project → import this repo.
+3. Add environment variables `MONGODB_URI` and `MONGODB_DB_NAME` (Project Settings →
+   Environment Variables) — same values as `.env.local`.
+4. Deploy. Atlas Network Access must allow `0.0.0.0/0` (same requirement as the pipeline
+   repo's GitHub Actions) since Vercel's serverless functions don't have a fixed IP either.
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Server components (`app/*/page.tsx`) query MongoDB directly at request time — there's no
+  separate backend API for reads, on purpose (see `lib/mongodb.ts`). Only the tracker's
+  status/notes updates go through an API route (`app/api/applications/route.ts`), since
+  that's a client-side write.
+- The skill-frequency chart is built with plain divs/Tailwind rather than a charting
+  library, following this workspace's `dataviz` skill (sequential single-hue bars, direct
+  end-labels, no unnecessary legend for a single series).
