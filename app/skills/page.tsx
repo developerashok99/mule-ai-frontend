@@ -2,6 +2,8 @@ import { getDb } from "@/lib/mongodb";
 import type { JdReport } from "@/lib/types";
 import SkillBarChart from "./SkillBarChart";
 
+export const dynamic = "force-dynamic";
+
 async function getLatestReport() {
   const db = await getDb();
   const [latest] = await db

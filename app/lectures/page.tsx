@@ -2,6 +2,8 @@ import { getDb } from "@/lib/mongodb";
 import type { LectureQA } from "@/lib/types";
 import LectureAccordion from "./LectureAccordion";
 
+export const dynamic = "force-dynamic";
+
 async function getChapters(): Promise<LectureQA[]> {
   const db = await getDb();
   return db.collection<LectureQA>("lecture_qna").find({}).sort({ _id: 1 }).toArray();

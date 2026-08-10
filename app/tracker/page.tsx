@@ -2,6 +2,8 @@ import { getDb } from "@/lib/mongodb";
 import type { Application, Job } from "@/lib/types";
 import TrackerTable from "./TrackerTable";
 
+export const dynamic = "force-dynamic";
+
 async function getRows() {
   const db = await getDb();
   const [jobs, applications] = await Promise.all([

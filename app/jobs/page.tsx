@@ -1,6 +1,8 @@
 import { getDb } from "@/lib/mongodb";
 import type { JobWithCompany } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 async function getJobs(): Promise<JobWithCompany[]> {
   const db = await getDb();
   return db

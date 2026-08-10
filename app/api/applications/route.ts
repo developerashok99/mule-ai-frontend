@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
 import type { Application } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const db = await getDb();
   const applications = await db

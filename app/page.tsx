@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getDb } from "@/lib/mongodb";
 import type { Application, JdReport } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 async function getSummary() {
   const db = await getDb();
   const [chapterCount, jobCount, companyCount, latestReport, applications] = await Promise.all([
