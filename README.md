@@ -15,7 +15,10 @@ one's code — they connect only through a shared MongoDB Atlas database.
   reference answer with a natural follow-up question (calls Groq directly from the browser)
 - **`/dataweave-practice`** — reveal-based practice transformation problems
 - **`/skills`** — bar chart of skill/topic mentions across all collected job descriptions, cross-referenced
-  against which chapters you've covered
+  against which chapters you've covered. Click any skill for `/skills/[skill]`: every interview question that
+  touches on it, the actual sentences from real JDs mentioning it (deduped, HTML-stripped), and a live-generated
+  "what employers expect" summary grounded in those excerpts (Groq call, cached in Mongo per skill so it isn't
+  regenerated on every visit)
 
 **Jobs**
 - **`/jobs`** — tracked postings with salary (where extracted), company score, location filter, a jobs-per-day

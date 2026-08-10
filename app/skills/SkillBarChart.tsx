@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 interface Props {
   data: [string, number][]; // [skill, count], already sorted descending
@@ -21,15 +22,16 @@ export default function SkillBarChart({ data, jobCount, coveredSkills }: Props) 
           const isHovered = hovered === skill;
           const covered = coveredSkills.has(skill);
           return (
-            <div
+            <Link
               key={skill}
-              className="flex items-center gap-3 text-sm"
+              href={`/skills/${encodeURIComponent(skill)}`}
+              className="flex items-center gap-3 text-sm group"
               onMouseEnter={() => setHovered(skill)}
               onMouseLeave={() => setHovered(null)}
-              title={`${skill}: ${count} mention${count === 1 ? "" : "s"} across ${jobCount} job description${jobCount === 1 ? "" : "s"} (${pct}%) - ${covered ? "chapter studied" : "not yet covered"}`}
+              title={`${skill}: ${count} mention${count === 1 ? "" : "s"} across ${jobCount} job description${jobCount === 1 ? "" : "s"} (${pct}%) - click for questions + real JD context`}
             >
               <div
-                className="w-40 shrink-0 truncate text-right"
+                className="w-40 shrink-0 truncate text-right group-hover:underline"
                 style={{ color: "var(--viz-text-secondary)" }}
               >
                 {skill}
@@ -59,10 +61,13 @@ export default function SkillBarChart({ data, jobCount, coveredSkills }: Props) 
               >
                 {covered ? "✓ studied" : "gap"}
               </span>
-            </div>
+            </Link>
           );
         })}
       </div>
+      <p className="text-xs mt-3" style={{ color: "var(--viz-muted)" }}>
+        Click a skill for its interview questions and real job-description context.
+      </p>
     </div>
   );
 }

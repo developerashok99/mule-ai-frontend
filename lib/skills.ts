@@ -54,3 +54,37 @@ export function coveredChapters(skill: string, chapterNames: string[]): string[]
     keywords.some((kw) => name.toLowerCase().includes(kw)),
   );
 }
+
+export function matchesSkill(text: string, skill: string): boolean {
+  return text.toLowerCase().includes(skill.toLowerCase());
+}
+
+const HTML_ENTITIES: Record<string, string> = {
+  "&lt;": "<", "&gt;": ">", "&amp;": "&", "&quot;": '"', "&#39;": "'", "&nbsp;": " ",
+};
+
+// Greenhouse (and others) return job descriptions as HTML, sometimes with entities
+// double-encoded - strip tags and decode entities so excerpts read as plain text.
+function stripHtml(text: string): string {
+  let decoded = text;
+  for (const [entity, char] of Object.entries(HTML_ENTITIES)) {
+    decoded = decoded.replaceAll(entity, char);
+  }
+  return decoded.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// Splits text into sentences and returns the ones mentioning the skill - real JD
+// context instead of just a mention count, capped per-source since one JD can repeat
+// a skill many times and we only need one representative sentence from it.
+export function extractExcerpts(text: string, skill: string, maxPerSource = 2): string[] {
+  if (!text) return [];
+  const clean = stripHtml(text);
+  const sentences = clean
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 15 && s.length < 400);
+
+  const needle = skill.toLowerCase();
+  const matches = sentences.filter((s) => s.toLowerCase().includes(needle));
+  return matches.slice(0, maxPerSource);
+}
